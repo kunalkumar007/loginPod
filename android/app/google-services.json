@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "319620515547",
+    "project_id": "loginpod-c20f5",
+    "storage_bucket": "loginpod-c20f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319620515547:android:0a06e2a2f912c0cebaeefe",
+        "android_client_info": {
+          "package_name": "com.loginpod.kunal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319620515547-pue4jeltglk9a91p713ph6kfffcaebd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3Z-WOYAqP-dq1vCQJossKUAj8jJty79Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "319620515547-pue4jeltglk9a91p713ph6kfffcaebd9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "319620515547-ptt9551indkhkjbhuueal083ir2p8kl0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.loginpod.kunal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
