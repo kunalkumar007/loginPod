@@ -10,10 +10,12 @@ import {
   ScrollView,
   StatusBar,
   Text,
-  ToastAndroid,
   View,
 } from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import Modal from 'react-native-modal';
 import {ScaledSheet} from 'react-native-size-matters';
+import {useToast} from 'react-native-toast-notifications';
 import {
   BackButton,
   CustomButton,
@@ -23,16 +25,14 @@ import {
 import {StudentCard} from '../components/StudentCard';
 import {Navigation, RootStackParamList} from '../constants/types';
 import {theme} from '../theme';
-import Modal from 'react-native-modal';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import {useToast} from 'react-native-toast-notifications';
 
 interface IProfileProps extends Navigation {
   route: RouteProp<RootStackParamList, 'Profile'>;
 }
 
 export default function ProfileScreen(props: IProfileProps) {
-  const [data, setString] = useClipboard();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [string, setString] = useClipboard();
   const [loader, setloader] = useState(true);
   const [buttonLoader, setbuttonLoader] = useState(false);
   const [showModal, setshowModal] = useState(false);
@@ -51,16 +51,6 @@ export default function ProfileScreen(props: IProfileProps) {
 
   const handlestudent = (newState: string, value: string) =>
     setstudent({...student, [newState]: value});
-  /**
-   * Clipboard Toast Handler
-   */
-  function notifyMessage(msg: string) {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(msg, ToastAndroid.SHORT);
-    } else {
-      Alert.alert('Copied to Clipboard', msg);
-    }
-  }
 
   console.log('profile', props.route.params.student, student);
   /**
@@ -126,10 +116,15 @@ export default function ProfileScreen(props: IProfileProps) {
           </TouchableOpacity>
         </View>
         <View style={styles.avatar}>
-          <Image
+          <View style={styles.image}>
+            <Text style={styles.imageText}>
+              {student.Name?.split(' ')[0].charAt(0)}
+            </Text>
+          </View>
+          {/* <Image
             style={styles.image}
             source={{uri: 'https://source.unsplash.com/500x500/?student'}}
-          />
+          /> */}
         </View>
       </View>
       <ScrollView style={styles.mainView}>
@@ -140,10 +135,12 @@ export default function ProfileScreen(props: IProfileProps) {
         </Text>
         <View style={styles.cardView}>
           <StudentCard
-            onPressOut={() => notifyMessage(data)}
-            onLongPress={() =>
-              setString(`Total Attendence: ${student.Attendence_in_percent}%`)
-            }
+            // onPressOut={() => notifyMessage(string)}
+            onPress={() => toast.show('Long Press to Copy Text')}
+            onLongPress={() => {
+              toast.show('Total Attendence Copied');
+              setString(student.Attendence_in_percent);
+            }}
             showImage={false}
             name="Total Attendence"
             value={
@@ -154,17 +151,21 @@ export default function ProfileScreen(props: IProfileProps) {
           />
           <StudentCard
             showImage={false}
-            onPressOut={() => notifyMessage(data)}
-            onLongPress={() => setString(`Phone Number: +91${student.Phone}`)}
+            onPress={() => toast.show('Long Press to Copy Text')}
+            onLongPress={() => {
+              toast.show('Phone Number Copied');
+              setString('+91' + student.Phone);
+            }}
             name="Phone Number"
             value={'+91 ' + student.Phone}
           />
           <StudentCard
             showImage={false}
-            onPressOut={() => notifyMessage(data)}
-            onLongPress={() =>
-              setString(`Student Roll No: ${student['Roll No']}`)
-            }
+            onPress={() => toast.show('Long Press to Copy Text')}
+            onLongPress={() => {
+              toast.show('Roll Number Copied');
+              setString(student['Roll No']);
+            }}
             name="College Roll No"
             value={student['Roll No']}
           />
@@ -283,10 +284,20 @@ const styles = ScaledSheet.create({
   image: {
     width: '150@vs',
     height: '150@vs',
-    resizeMode: 'cover',
+    // resizeMode: 'cover',
     borderRadius: 500,
     borderWidth: 5,
     borderColor: theme.colors.gray1,
+    // View Section
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.button,
+  },
+  imageText: {
+    fontSize: '100@ms',
+    fontFamily: theme.typography.medium,
+    color: 'white',
   },
   mainView: {
     marginTop: '25%',
@@ -321,5 +332,6 @@ const styles = ScaledSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
 });

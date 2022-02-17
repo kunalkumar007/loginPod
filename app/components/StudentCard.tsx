@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  Image,
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
@@ -19,7 +18,7 @@ interface StudentCardProps extends TouchableOpacityProps {
 
 export function StudentCard(props: Partial<StudentCardProps>) {
   const {
-    uri = 'https://source.unsplash.com/500x500/?man',
+    // uri = 'https://source.unsplash.com/500x500/?man',
     name,
     subtitle,
     value,
@@ -30,11 +29,11 @@ export function StudentCard(props: Partial<StudentCardProps>) {
     <TouchableOpacity {...props} style={styles.studentCard}>
       <View style={styles.studentCardLeftView}>
         {showImage && (
-          <Image
-            source={{uri: uri}}
-            style={styles.studentAvatar}
-            resizeMode="cover"
-          />
+          <View style={styles.image}>
+            <Text style={styles.imageText}>
+              {name?.split(' ')[0].charAt(0)}
+            </Text>
+          </View>
         )}
         <View style={styles.studentTextView}>
           <Text style={styles.studentName}>{name}</Text>
@@ -69,19 +68,38 @@ const styles = ScaledSheet.create({
     borderRadius: 50,
     marginRight: '13@ms',
   },
+  image: {
+    width: '40@ms',
+    height: '40@ms',
+    marginRight: '13@ms',
+    // resizeMode: 'cover',
+    borderRadius: 500,
+    borderColor: theme.colors.gray1,
+    // View Section
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.button,
+  },
+  imageText: {
+    fontSize: '20@ms',
+    fontFamily: theme.typography.medium,
+    color: 'white',
+  },
   studentTextView: {},
   studentName: {
     fontFamily: theme.typography.regular,
     fontSize: '15@ms',
     width: '150@ms',
+    color: theme.colors.tint,
     // borderWidth: 1,
   },
   studentSubtitle: {
     fontFamily: theme.typography.regular,
-    fontSize: '9@ms',
+    fontSize: '12@ms',
     color: theme.colors.tint,
     width: '150@ms',
-    marginTop: 5,
+    // marginTop: 5,
   },
   studentAttendence: {
     backgroundColor: theme.colors.tint,

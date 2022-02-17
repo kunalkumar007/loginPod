@@ -30,6 +30,7 @@ export default async function SendMail(props: IMailProps) {
   // if (query.length) {
   //   url += `?${query}`;
   // }
+  console.log(typeof url);
   const canOpen = await Linking.canOpenURL(url);
   if (!canOpen) {
     // return toast.show('Invalid Link', {type: 'danger'});

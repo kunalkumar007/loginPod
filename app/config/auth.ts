@@ -4,7 +4,6 @@ import auth from '@react-native-firebase/auth';
  * Get current User token from auth-firebase
  */
 export async function authToken() {
-  // Get current users Token
   const result = await auth().currentUser?.getIdToken();
   return result;
 }

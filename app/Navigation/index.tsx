@@ -17,6 +17,7 @@ import MessageScreen from '../screens/MessageScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import StudentScreen from '../screens/StudentScreen';
 import UploadScreen from '../screens/UploadScreen';
+import RNBootSplash from 'react-native-bootsplash';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator();
@@ -40,7 +41,9 @@ function Navigation() {
   const scheme = useColorScheme();
 
   return (
-    <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <NavigationContainer
+      theme={scheme === 'dark' ? DarkTheme : DefaultTheme}
+      onReady={() => RNBootSplash.hide()}>
       <Stack.Navigator
         initialRouteName="Login"
         screenOptions={{headerShown: false}}>

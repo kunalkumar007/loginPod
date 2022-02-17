@@ -1,4 +1,3 @@
-import {useTheme} from '@react-navigation/native';
 import React from 'react';
 import {
   Image,
@@ -27,14 +26,13 @@ type BackButtonProps = {
 
 export function CustomTextInput(props: TextInputProps) {
   const {placeholder, style, ...others} = props;
-  const {colors} = useTheme();
 
   return (
     <TextInput
       {...others}
       placeholder={placeholder}
       style={[styles.textInput, style]}
-      placeholderTextColor={colors.text}
+      placeholderTextColor={theme.colors.tint}
     />
   );
 }
@@ -71,6 +69,7 @@ const styles = ScaledSheet.create({
     marginVertical: '2%',
     borderRadius: 8,
     fontSize: '17@ms',
+    color: theme.colors.tint,
   },
   // Button
   buttonBox: {
@@ -96,6 +95,8 @@ const styles = ScaledSheet.create({
   backView: {
     flexDirection: 'row',
     alignItems: 'center',
+    // marginTop: '5%',
+    paddingHorizontal: '1%',
   },
   backImage: {
     resizeMode: 'cover',

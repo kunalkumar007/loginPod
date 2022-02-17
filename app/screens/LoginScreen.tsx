@@ -1,5 +1,5 @@
 import auth from '@react-native-firebase/auth';
-import {useIsFocused, useTheme} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
@@ -18,7 +18,6 @@ export default function LoginScreen(props: Props) {
   const [email, setemail] = useState('kunal.kumar@acem.edu.in');
   const [password, setpassword] = useState('abcd1234');
   //  all hooks
-  const {colors} = useTheme();
   const toast = useToast();
   const isFocused = useIsFocused();
   // Navigate if token exists
@@ -56,14 +55,12 @@ export default function LoginScreen(props: Props) {
       <View style={styles.textInputView}>
         <CustomTextInput
           placeholder="Email"
-          placeholderTextColor={colors.text}
           onChangeText={text => setemail(text)}
           defaultValue={email}
         />
         <CustomTextInput
           placeholder="Password"
           secureTextEntry={true}
-          placeholderTextColor={colors.text}
           onChangeText={text => setpassword(text)}
           defaultValue={password}
         />

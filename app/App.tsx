@@ -1,15 +1,15 @@
 /**
  * @format
  */
-import 'react-native-gesture-handler';
 import React from 'react';
+import 'react-native-gesture-handler';
 import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
+import {ToastProvider} from 'react-native-toast-notifications';
 import {AppContext} from './AppContenxt';
 import Navigation from './Navigation';
-import {ToastProvider} from 'react-native-toast-notifications';
 
 // Entry Component
 const App = () => {

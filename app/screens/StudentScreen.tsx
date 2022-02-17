@@ -7,6 +7,7 @@ import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
+  Linking,
   ScrollView,
   Text,
   TextInput,
@@ -15,7 +16,6 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScaledSheet} from 'react-native-size-matters';
 import {BackButton, CustomButton, Heading} from '../components/Core';
-import SendMail from '../components/SendMail';
 import {StudentCard} from '../components/StudentCard';
 import {Navigation, RootStackParamList} from '../constants/types';
 import {theme} from '../theme';
@@ -46,8 +46,6 @@ export default function StudentScreen(props: IStudentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
 
-  console.log(props.route.params.status);
-
   const handleSearch = () => {
     if (searchInput !== '') {
       const searchResult = studentsList?.filter(student =>
@@ -66,6 +64,7 @@ export default function StudentScreen(props: IStudentProps) {
     querySnapshot.forEach(querydocumentSnapshot => {
       const data = {
         id: querydocumentSnapshot.id,
+        isSelected: false,
         ...querydocumentSnapshot.data(),
       };
       result.push(data);
@@ -77,21 +76,36 @@ export default function StudentScreen(props: IStudentProps) {
 
   const handleMail = () => {
     const mailListResult = mailList.join(',');
-    console.log('result', typeof mailListResult);
-    SendMail({
-      to: mailListResult.toString(),
-      subject: '',
-      body: '',
-      options: {
-        cc: '',
-        bcc: '',
-      },
-    });
+    Linking.openURL('mailto:' + mailListResult.toString());
+    // SendMail({
+    //   to: mailListResult,
+    //   subject: '',
+    //   body: '',
+    //   options: {
+    //     cc: '',
+    //     bcc: '',
+    //   },
+    // });
+  };
+
+  const handleSingleCheckBox = (
+    newValue: boolean,
+    student: FirebaseFirestoreTypes.DocumentData,
+  ) => {
+    console.log(newValue, student.isSelected);
+    if (newValue && !mailList.includes(student.Email)) {
+      setmailList(prev => [...prev, student.Email]);
+      student.isSelected = true;
+    } else {
+      let result = mailList.filter(item => item !== student.Email);
+      setmailList(result);
+      student.isSelected = false;
+    }
   };
 
   const NotFound = () => {
     return (
-      <View>
+      <View style={styles.notFoundView}>
         <Image
           style={styles.notFound}
           source={require('../assets/NotFound.png')}
@@ -112,7 +126,9 @@ export default function StudentScreen(props: IStudentProps) {
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView nestedScrollEnabled={true} style={styles.homeView}>
-        <BackButton onPress={() => props.navigation.goBack()} />
+        <View style={{marginTop: '5%'}}>
+          <BackButton onPress={() => props.navigation.goBack()} />
+        </View>
         <Heading label="All Students" style={styles.heading} />
         <View style={styles.searchView}>
           <Image
@@ -126,7 +142,7 @@ export default function StudentScreen(props: IStudentProps) {
             onChangeText={setsearchInput}
           />
         </View>
-        {status !== 'add' && (
+        {status !== 'add' && studentsList?.length !== 0 && (
           <View style={styles.flexBetween}>
             <CheckBox
               onValueChange={newValue => {
@@ -138,9 +154,19 @@ export default function StudentScreen(props: IStudentProps) {
                   let result = filteredResult?.map(student => student.Email);
                   if (result) {
                     setmailList(result);
+                    let selectionResult = studentsList?.map(student => ({
+                      ...student,
+                      isSelected: true,
+                    }));
+                    setstudentsData(selectionResult);
                   }
                 } else {
                   setmailList([]);
+                  let selectionResult = studentsList?.map(student => ({
+                    ...student,
+                    isSelected: false,
+                  }));
+                  setstudentsData(selectionResult);
                 }
               }}
               value={toggleCheckBox}
@@ -158,7 +184,7 @@ export default function StudentScreen(props: IStudentProps) {
           </View>
         )}
         <ScrollView nestedScrollEnabled={true} style={styles.studentView}>
-          {studentsData !== undefined ? (
+          {studentsList?.length !== 0 && studentsData !== undefined ? (
             studentsData?.map((student, index) => {
               return (
                 <View
@@ -166,17 +192,10 @@ export default function StudentScreen(props: IStudentProps) {
                   key={index}>
                   {status !== 'add' && (
                     <CheckBox
-                      value={toggleCheckBox}
-                      onValueChange={newValue => {
-                        if (newValue && !mailList.includes(student.Email)) {
-                          setmailList(prev => [...prev, student.Email]);
-                        } else {
-                          let result = mailList.filter(
-                            item => item !== student.Email,
-                          );
-                          setmailList(result);
-                        }
-                      }}
+                      value={student.isSelected}
+                      onValueChange={newValue =>
+                        handleSingleCheckBox(newValue, student)
+                      }
                       boxType="square"
                       style={styles.checkBox}
                       tintColors={{
@@ -190,16 +209,18 @@ export default function StudentScreen(props: IStudentProps) {
                   )}
                   <StudentCard
                     name={student.Name}
-                    subtitle={student.Email}
+                    subtitle={student['Roll No']}
                     value={
                       student.Attendence_in_percent
                         ? student.Attendence_in_percent + '%'
                         : 'N / A'
                     }
                     onPress={() =>
-                      props.navigation.navigate('Profile', {
-                        student,
-                      })
+                      status !== 'add'
+                        ? handleSingleCheckBox(!student.isSelected, student)
+                        : props.navigation.navigate('Profile', {
+                            student,
+                          })
                     }
                   />
                 </View>
@@ -210,7 +231,7 @@ export default function StudentScreen(props: IStudentProps) {
           )}
         </ScrollView>
       </ScrollView>
-      {status !== 'add' && (
+      {status !== 'add' && studentsList?.length !== 0 && (
         <View style={styles.buttonView}>
           <CustomButton label="Send" onPress={handleMail} />
         </View>
@@ -266,6 +287,7 @@ const styles = ScaledSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   notFound: {
     width: '100%',
@@ -282,7 +304,7 @@ const styles = ScaledSheet.create({
   },
   checkBox: {
     width: '25@ms',
-    height: '15@vs',
+    height: '25@ms',
     marginRight: '5@ms',
     // borderWidth: 2,
   },
@@ -292,5 +314,9 @@ const styles = ScaledSheet.create({
     width: '95%',
     bottom: '5%',
     left: '5%',
+  },
+  notFoundView: {
+    // borderWidth: 1,
+    marginTop: '40%',
   },
 });

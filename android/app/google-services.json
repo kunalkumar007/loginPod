@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:319620515547:android:0a06e2a2f912c0cebaeefe",
+        "mobilesdk_app_id": "1:319620515547:android:a1ddc5c8a6ca8365baeefe",
         "android_client_info": {
-          "package_name": "com.loginpod.kunal"
+          "package_name": "com.loginpod"
         }
       },
       "oauth_client": [

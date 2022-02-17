@@ -1,10 +1,20 @@
-import firestore from '@react-native-firebase/firestore';
+import firestore, {
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 import React, {useEffect, useState} from 'react';
-import {Alert, BackHandler, Image, Linking, Text, View} from 'react-native';
+import {
+  Alert,
+  BackHandler,
+  Image,
+  Linking,
+  Platform,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
 import DocumentPicker, {
   DocumentPickerResponse,
   isInProgress,
-  types,
 } from 'react-native-document-picker';
 import * as RNFS from 'react-native-fs';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -17,20 +27,31 @@ import arrToObject from '../utils/array-to-json';
 // Static Nodejs Modules
 const Papa = require('papaparse');
 
+const url =
+  'https://res.cloudinary.com/kunal-img/raw/upload/v1642175020/LoginPod/3rdSemData_hlajyv.csv';
+
 const UploadScreen = (props: HomeProps) => {
   const [loader, setloader] = useState(false);
+  const [studentsList, setstudentsList] =
+    useState<FirebaseFirestoreTypes.DocumentData[]>();
   // Toast
   const toast = useToast();
 
   useEffect(() => {
-    const backhandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-    return backhandler.remove();
+    if (loader) {
+      BackHandler.addEventListener('hardwareBackPress', backAction);
+    }
+    return () => {
+      if (loader) {
+        BackHandler.addEventListener('hardwareBackPress', backAction);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Go back to Home
+   */
   const backAction = () => {
     Alert.alert(
       'Hold on!',
@@ -46,8 +67,21 @@ const UploadScreen = (props: HomeProps) => {
     );
     return true;
   };
+  /**
+   * Get all Students to convert it to CSV
+   */
+  const getAllStudents = async () => {
+    const querySnapshot = await firestore().collection('students').get();
+    let result: any = [];
+    querySnapshot.forEach(queryDocSnapshot => {
+      result.push(queryDocSnapshot.data());
+    });
+    setstudentsList(result);
+  };
 
-  // handles Parsing of CSV to JSON
+  /**
+   * handles Parsing of CSV to JSON
+   */
   const Parser = async (result: DocumentPickerResponse) => {
     if (result) {
       const file = await RNFS.readFile(result.uri);
@@ -72,7 +106,9 @@ const UploadScreen = (props: HomeProps) => {
     }
   };
 
-  // Handles Document Error
+  /**
+   * Handles Document Error
+   */
   const handleError = (err: unknown) => {
     if (DocumentPicker.isCancel(err)) {
       toast.show('Cancelled 😟', {type: 'warning'});
@@ -86,9 +122,49 @@ const UploadScreen = (props: HomeProps) => {
       toast.show('Something went Wrong 😕', {type: 'danger'});
     }
   };
-  const url =
-    'https://res.cloudinary.com/kunal-img/raw/upload/v1642175020/LoginPod/3rdSemData_hlajyv.csv';
+  /**
+   * an asynchronous function that will be executed when the user clicks on the "upload" button in the DocumentPicker
+   */
+  const handleUpload = async () => {
+    try {
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+        // type: types.csv,
+      });
+      Parser(pickerResult);
+    } catch (e) {
+      handleError(e);
+    }
+  };
+  /**
+   * a function that exports the students list to a CSV file
+   */
+  const handleExport = async () => {
+    await getAllStudents();
+    console.log('student', studentsList);
+    const csv = Papa.unparse(studentsList);
+    if (Platform.OS === 'android') {
+      var path = RNFS.DownloadDirectoryPath + '/students.csv';
+      console.log('Res', path);
+      await RNFS.writeFile(path, csv, 'utf8').catch(error =>
+        toast.show(error.message, {type: 'danger'}),
+      );
+      toast.show('File Written to the Download directory!', {type: 'success'});
+    } else {
+      // The code is used to write a file to the document directory of the RNFS.
+      var path = RNFS.DocumentDirectoryPath + '/students.csv';
+      console.log('Res', path);
+      await RNFS.writeFile(path, csv, 'utf8').catch(error =>
+        toast.show(error.message, {type: 'danger'}),
+      );
+      toast.show('File Written to the document directory!', {type: 'success'});
+    }
+  };
 
+  /**
+   * Download CSV File Demo Version
+   */
   const handleDemoFile = async () => {
     await Linking.openURL(url);
   };
@@ -128,21 +204,15 @@ const UploadScreen = (props: HomeProps) => {
             onPress={handleDemoFile}
           />
           <CustomButton
-            label="Upload"
+            label="Upload Students"
             disabled={loader}
             style={styles.uploadBtn}
-            onPress={async () => {
-              try {
-                const pickerResult = await DocumentPicker.pickSingle({
-                  presentationStyle: 'fullScreen',
-                  copyTo: 'cachesDirectory',
-                  type: types.csv,
-                });
-                Parser(pickerResult);
-              } catch (e) {
-                handleError(e);
-              }
-            }}
+            onPress={handleUpload}
+          />
+          <CustomButton
+            style={styles.uploadBtn}
+            label="Export Students"
+            onPress={handleExport}
           />
         </View>
       )}
@@ -168,6 +238,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: '5%',
+    marginTop: Platform.OS === 'ios' ? '25@vs' : StatusBar.currentHeight,
   },
   backButtonView: {
     backgroundColor: theme.colors.gray1,
@@ -176,8 +247,9 @@ const styles = ScaledSheet.create({
   headerText: {
     flex: 1,
     fontFamily: theme.typography.regular,
-    fontSize: '30@ms',
+    fontSize: '25@ms',
     marginLeft: '5%',
+    color: theme.colors.tint,
   },
   uploadBtn: {
     marginTop: '5%',

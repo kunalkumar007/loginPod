@@ -58,11 +58,13 @@ export default function HomeScreen(props: HomeProps) {
     );
   }
 
+  console.log(studentsList?.length);
+
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView style={styles.homeView} nestedScrollEnabled={true}>
         <TouchableOpacity onPress={() => props.navigation.openDrawer()}>
-          <Image source={require('../assets/Menu.png')} />
+          <Image style={styles.image} source={require('../assets/Menu.png')} />
         </TouchableOpacity>
         <Heading label="Home" style={styles.heading} />
         {/* Card */}
@@ -76,7 +78,7 @@ export default function HomeScreen(props: HomeProps) {
               </Text>
             </View>
             <Image
-              source={{uri: 'https://source.unsplash.com/500x500/?teacher'}}
+              source={{uri: 'https://source.unsplash.com/500x500/?professor'}}
               style={styles.avatar}
             />
           </View>
@@ -93,12 +95,12 @@ export default function HomeScreen(props: HomeProps) {
               See All
             </Text>
           </View>
-          {studentsList !== undefined ? (
+          {studentsList?.length !== 0 && studentsList !== undefined ? (
             studentsList?.map((student, index) => (
               <StudentCard
                 key={index}
                 name={student.Name}
-                subtitle={student.Email}
+                subtitle={student['Roll No']}
                 value={
                   student.Attendence_in_percent
                     ? student.Attendence_in_percent + '%'
@@ -134,7 +136,7 @@ const styles = ScaledSheet.create({
   homeView: {
     paddingHorizontal: '5%',
   },
-  heading: {textAlign: 'auto', marginTop: '2%'},
+  heading: {textAlign: 'auto'},
   cardBox: {
     backgroundColor: theme.colors.tint,
     minHeight: '80@vs',
@@ -153,10 +155,10 @@ const styles = ScaledSheet.create({
   cardHeading: {
     color: 'white',
     padding: '10@ms',
-    fontFamily: theme.typography.medium,
-    fontSize: '20@ms',
+    fontFamily: theme.typography.bold,
+    fontSize: '16@ms',
     backgroundColor: theme.colors.button,
-    width: '100%',
+    // width: '100%',
   },
   cardHeading2: {
     color: theme.colors.gray1,
@@ -174,17 +176,19 @@ const styles = ScaledSheet.create({
   headline: {
     fontFamily: theme.typography.regular,
     fontSize: '15@ms',
+    color: theme.colors.tint,
   },
   loaderScreen: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   avatar: {
-    // width: '10@ms',
-    // height: '50@vs',
+    width: '95@vs',
+    height: '95@vs',
     borderRadius: 50,
-    padding: '50@ms',
+    // padding: '50@ms',
     resizeMode: 'cover',
   },
   notFound: {
@@ -195,5 +199,8 @@ const styles = ScaledSheet.create({
     textAlign: 'center',
     fontSize: '25@s',
     fontFamily: theme.typography.black,
+  },
+  image: {
+    marginTop: '5%',
   },
 });
